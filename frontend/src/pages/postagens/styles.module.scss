@@ -1,0 +1,13 @@
+.container {
+  padding: 0 2rem;
+  display: flex;
+  justify-content: center;
+
+  .content {
+    max-width: 1120px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
