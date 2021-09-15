@@ -7,16 +7,19 @@ import { AuthProvider } from '../contexts/AuthContext'
 
 import '../styles/global.scss';
 import { Footer } from '../components/Footer';
+import { PostsProvider } from '../contexts/PostsContext';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
       <AuthProvider>
-        <ChakraProvider theme={theme}>
-          <Header />
-          <Component {...pageProps} />
-          <Footer />
-        </ChakraProvider>
+        <PostsProvider>
+          <ChakraProvider theme={theme}>
+            <Header />
+            <Component {...pageProps} />
+            <Footer />
+          </ChakraProvider>
+        </PostsProvider>
       </AuthProvider>
     </>
   )

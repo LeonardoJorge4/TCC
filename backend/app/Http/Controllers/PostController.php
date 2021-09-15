@@ -9,6 +9,11 @@ class PostController extends Controller
 {
     public function index()
     {
+        return Posts::paginate(9);
+    }
+
+    public function lastFivePosts()
+    {
         return Posts::orderBy('created_at')->take(5)->get();
     }
 }

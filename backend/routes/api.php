@@ -31,6 +31,7 @@ Route::group([
     'prefix' => 'posts'
 ], function () {
     Route::get('/', [PostController::class, 'index']);
+    Route::get('/last-five-posts', [PostController::class, 'lastFivePosts']);
 });
 
 Route::post('/admin/login', [AdminController::class, 'login']);

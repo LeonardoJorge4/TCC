@@ -7,9 +7,8 @@ import { api } from '../services/api';
 export default function Home() {
   const [posts, setPosts] = useState([]);
 
-
   useEffect(() => {
-    const response = api.get('posts')
+    const response = api.get('posts/last-five-posts')
     .then(response => setPosts(response.data))
     .catch(error => console.log(error))
   }, [])

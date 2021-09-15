@@ -54,7 +54,7 @@ export function Header() {
             <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
               <ul className="navbar-nav d-flex containerNavbar">
                 <li className="nav-item me-3">
-                  <Link href="/postagens">
+                  <Link href="/posts">
                     <a className="nav-link text-white fs-5 d-flex align-items-center">
                       <span className="me-1">POSTAGENS</span> <BsFilePost />
                     </a>
