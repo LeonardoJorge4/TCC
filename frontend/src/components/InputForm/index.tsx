@@ -23,6 +23,11 @@ export default function InputForm({ name, ...rest }: InputProps) {
     })
   }, [fieldName, registerField])
 
-  return <input ref={inputRef} defaultValue={defaultValue} {...rest} />
+  return (
+    <div>
+      <input ref={inputRef} defaultValue={defaultValue} {...rest} />
+      <div className="text-danger">{error}</div>
+    </div>
+  )
 
 }

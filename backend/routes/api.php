@@ -32,6 +32,7 @@ Route::group([
 ], function () {
     Route::get('/', [PostController::class, 'index']);
     Route::get('/last-five-posts', [PostController::class, 'lastFivePosts']);
+    Route::get('/admin-name', [PostController::class, 'adminName']);
 });
 
 Route::post('/admin/login', [AdminController::class, 'login']);

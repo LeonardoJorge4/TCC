@@ -6,12 +6,18 @@ import { api } from '../services/api';
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
+  const [adminName, setAdminName] = useState([]);
 
   useEffect(() => {
     const response = api.get('posts/last-five-posts')
     .then(response => setPosts(response.data))
     .catch(error => console.log(error))
   }, [])
+
+  useEffect(() => {
+    const response = api.get('posts/admin-name')
+    .then(response => console.log(response.data))
+  }, []);
 
   return (
     <>
@@ -24,8 +30,8 @@ export default function Home() {
                 <div className={styles.containerPost}>
                   <div className={styles.gridPost}>
                     <div className={styles.contentPost}>
-                      <h2><a href="">{post.title}</a></h2>
-                      <h3><a href="">{post.subtitle}</a></h3>
+                      <h2><a href={`/posts/${post.slug}`}>{post.title}</a></h2>
+                      <h3><a href={`/posts/${post.slug}`}>{post.subtitle}</a></h3>
                       <div className={styles.author}>
                         <span>por <b>Leonardo Jorge</b></span>
                         <span>

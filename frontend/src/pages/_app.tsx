@@ -2,6 +2,7 @@ import { AppProps } from 'next/app';
 import { Header } from "../components/Header";
 import { ChakraProvider } from "@chakra-ui/react"
 import { theme } from '../styles/theme';
+import ScrollToTop from "react-scroll-to-top";
 
 import { AuthProvider } from '../contexts/AuthContext'
 
@@ -16,6 +17,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <PostsProvider>
           <ChakraProvider theme={theme}>
             <Header />
+            <ScrollToTop smooth style={{ padding: 4, boxShadow: "rgba(0, 0, 0, 0.35)" }} />
             <Component {...pageProps} />
             <Footer />
           </ChakraProvider>

@@ -38,8 +38,8 @@ export default function Login() {
           </div>
         </div>
       </section>
-      <div className="bg-light">
-      <div className="container containerLogin">
+      <div>
+      <div className="container">
         <div className="p-3">
           <form method="post" onSubmit={handleSubmit(handleSignIn)}>
             <div className="mb-3">
