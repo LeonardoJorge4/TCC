@@ -28,19 +28,29 @@ Route::group([
 });
 
 Route::group([
+    'prefix' => 'admin'
+], function () {
+    Route::get('/login', [AdminController::class, 'login']);
+    Route::post('/create', [AdminController::class, 'create']);
+});
+
+Route::group([
     'prefix' => 'posts'
 ], function () {
     Route::get('/', [PostController::class, 'index']);
+    Route::get('/all-posts', [PostController::class, 'allPosts']);
     Route::get('/last-five-posts', [PostController::class, 'lastFivePosts']);
     Route::get('/admin-name', [PostController::class, 'adminName']);
+    Route::get('/{slug}', [PostController::class, 'getPost']);
+    Route::post('/comment', [PostController::class, 'comment']);
+    Route::post('/create', [PostController::class, 'create']);
 });
-
-Route::post('/admin/login', [AdminController::class, 'login']);
 
 Route::group([
     'middleware' => 'apiJwt'
 ], function () {
     Route::post('login', [AuthController::class, 'login']);
+    Route::post('admin-login', [AuthController::class, 'adminLogin']);
     Route::post('logout', [AuthController::class, 'logout']);
 });
 

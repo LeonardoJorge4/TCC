@@ -18,20 +18,8 @@ class apiProtectedRoute extends BaseMiddleware
      * @param  \Closure  $next
      * @return mixed
      */
-    public function handle(Request $request, Closure $next)
+    public function handle($request, Closure $next, $guard = null)
     {
-        try {
-            $user = JWTAuth::parseToken()->authenticate();
-        } catch (Exception $exception) {
-            if ($exception instanceof TokenInvalidException){
-                return response()->json(['status' => 'Token is Invalid']);
-            }else if ($exception instanceof TokenExpiredException){
-                return response()->json(['status' => 'Token is Expired']);
-            }else{
-                return response()->json(['status' => 'Authorization Token not found']);
-            }
-        }
-
         return $next($request);
     }
 }

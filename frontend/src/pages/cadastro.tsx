@@ -2,7 +2,6 @@ import React, { useRef, useState } from 'react'
 import { Form } from '@unform/web'
 import InputForm from '../components/InputForm';
 import * as yup from 'yup';
-
 interface FormProps {
   name: string;
   email: string;
@@ -14,8 +13,6 @@ interface FormProps {
 export default function Cadastro() {
   const formRef = useRef(null);
   const [checked, setChecked] = useState<boolean>(false);
-
-  console.log(checked)
 
   async function handleSubmit(data: FormProps) {
     try {
@@ -29,7 +26,7 @@ export default function Cadastro() {
           .email('e-mail inválido')
           .required('e-mail é um campo obrigatório'),
         password: yup.string()
-          .min(6)
+          .min(8, 'senha precisa ter no mínimo 8 caracteres')
           .required('senha é um campo obrigatório'),
       });
       await schema.validate(data, {

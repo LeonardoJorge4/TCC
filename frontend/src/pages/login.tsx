@@ -1,28 +1,51 @@
+import React, { useRef, useState } from 'react';
 import Head from "next/head";
-import styles from './styles.module.scss';
+import Link from "next/link";
+import { Form } from '@unform/web'
 import { useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext";
-import { useForm } from 'react-hook-form';
-import Swal from 'sweetalert2'
 import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
+import InputForm from '../components/InputForm';
 
-const signInFormSchema = yup.object().shape({
-  email: yup.string().required().email('E-mail inválido'),
-  password: yup.string().required().min(8)
-})
+interface FormProps {
+  email: string;
+  password: string;
+}
 
 export default function Login() {
-  const { register, handleSubmit, formState } = useForm({
-    resolver: yupResolver(signInFormSchema)
-  });
-
-  const { errors } = formState
-
+  const formRef = useRef(null);
+  const [remember, setRemember] = useState<boolean>(false);
   const { signIn } = useContext(AuthContext);
 
-  async function handleSignIn(data) {
-    await signIn(data);
+  async function handleSignIn(data: FormProps) {
+    try {
+      // Remove all previous errors
+      formRef.current.setErrors({});
+      
+      const schema = yup.object().shape({
+        email: yup.string()
+          .required('email é um campo obrigatório')
+          .email('email inválido'),
+        password: yup.string()
+          .required('senha é um campo obrigatório')
+          .min(8, 'senha precisa ter no mínimo 8 caracteres')
+      });
+      await schema.validate(data, {
+        abortEarly: false,
+      });
+
+      // Validation passed
+      await signIn(data);
+
+    } catch (err) {
+      const validationErrors = {};
+      if (err instanceof yup.ValidationError) {
+        err.inner.forEach(error => {
+          validationErrors[error.path] = error.message;
+        });
+        formRef.current.setErrors(validationErrors);
+      }
+    }
   }
 
   return (
@@ -30,55 +53,45 @@ export default function Login() {
       <Head>
         <title>Tecnoblog | Login</title>
       </Head>
-      <section className="py-4 text-center container">
-        <div className="row py-lg-5">
-          <div className="col-lg-6 col-md-8 mx-auto">
-            <h1 className="fw-light fs-1">Login</h1>
-            <p className="lead text-muted">Something short and leading about the collection below—its contents, the creator, etc. Make it short and sweet, but not too short so folks don’t simply skip over it entirely.</p>
+      <main>
+        <section className="py-4 text-center container">
+          <div className="row py-lg-4">
+            <div className="col-lg-6 col-md-8 mx-auto">
+              <h1 className="fw-light fs-1">Faça o Login</h1>
+            </div>
+          </div>
+        </section>
+
+        <div>
+          <div className="container">
+            <div>
+              <Form ref={formRef} onSubmit={handleSignIn}>
+                <div className="mb-3">
+                  <label htmlFor="exampleInputEmail1" className="form-label">Email</label>
+                  <InputForm
+                    id="email"
+                    name="email"
+                    className="form-control form-control-lg"
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="exampleInputPassword1" className="form-label">Senha</label>
+                  <InputForm
+                    id="password"
+                    name="password"
+                    type="password"
+                    className="form-control form-control-lg"
+                  />
+                </div>
+                <button type="submit" className="btn btn-lg btn-primary w-100">Entrar</button>
+                <Link href="/cadastro">
+                  <a className="btn btn-lg btn-success w-100 mt-3">Cadastre-se</a>
+                </Link>
+              </Form>
+            </div>
           </div>
         </div>
-      </section>
-      <div>
-      <div className="container">
-        <div className="p-3">
-          <form method="post" onSubmit={handleSubmit(handleSignIn)}>
-            <div className="mb-3">
-              <label htmlFor="exampleInputEmail1" className="form-label">Email</label>
-              <input 
-                type="email"
-                id="exampleInputEmail1"
-                name="email"
-                className="form-control form-control-lg"
-                aria-describedby="emailHelp"
-                {...register('email')}
-              />
-              {errors.email && (
-                <div className="text-danger">E-mail inválido</div>
-              )}
-            </div>
-            <div className="mb-3">
-              <label htmlFor="exampleInputPassword1" className="form-label">Senha</label>
-              <input 
-                type="password"
-                id="exampleInputPassword1"
-                className="form-control form-control-lg"
-                name="password"
-                {...register('password')}
-              />
-              {errors.password && (
-                <div className="text-danger">Senha inválida</div>
-              )}
-            </div>
-            <div className="mb-3 form-check">
-              <input type="checkbox" className="form-check-input" id="exampleCheck1" />
-              <label className="form-check-label" htmlFor="exampleCheck1">Lembrar de mim</label>
-            </div>
-            <button type="submit" className="btn btn-lg btn-primary w-100">Entrar</button>
-            <a className="btn btn-lg btn-success w-100 mt-3" href="/cadastro">Cadastre-se</a>
-          </form>
-        </div>
-      </div>
-      </div>
+      </main>
     </>
   )
 }

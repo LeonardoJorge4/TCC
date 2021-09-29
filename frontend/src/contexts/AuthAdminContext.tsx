@@ -4,51 +4,38 @@ import { setCookie, parseCookies } from 'nookies';
 import Router from 'next/router';
 import Swal from 'sweetalert2'
 
-type User = {
-  name: string;
-  email: string;
-  image?: File;
-  receive_email: boolean;
-}
-
 type SignInData = {
   email: string;
   password: string;
-  remember: boolean;
 }
 
 type AuthContextType = {
   isAuthenticated: boolean;
-  user: User;
   signIn: (data: SignInData) => Promise<void>;
 }
 
-export const AuthContext = createContext({} as AuthContextType)
+export const AuthAdminContext = createContext({} as AuthContextType)
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState<User | null>(null);
+export function AuthAdminProvider({ children }) {
+  const [admin, setUser] = useState(null);
 
-  const isAuthenticated = !!user;
+  const isAuthenticated = !!admin;
 
   useEffect(() => {
-    const { 'tecnoblog.token': token } = parseCookies();
+    const { 'tecnoblog.tokenAdmin': token } = parseCookies();
 
     if(token) {
-      api.get('users/data').then(
-        response => {
-          const { name, email, image, receive_email } = response.data;
-
-          setUser({ name, email, image, receive_email })
-        }
-      );
+      api.get('admin/login').then(
+        response => console.log(response)
+      ).catch(error => console.log(error))
     }
   }, [])
 
-  async function signIn({ email, password, remember }: SignInData) {
+  async function signIn({ email, password }: SignInData) {
 
-    const response = await api.post('login', {
+    const response = await api.post('admin-login', {
       email, password
-    }).catch();
+    })
 
     if(response.data.error) {
       Swal.fire({
@@ -62,12 +49,12 @@ export function AuthProvider({ children }) {
       return;
     }
 
-    setCookie(undefined, 'tecnoblog.token', response.data.access_token, {
+    setCookie(undefined, 'tecnoblog.tokenAdmin', response.data.access_token, {
       maxAge: 60 * 60 * 1, //1 hour
       //maxAge: 5, //5 sec
     })
     
-    setUser(user);
+    setUser(admin);
 
     Swal.fire({
       position: 'top-end',
@@ -79,16 +66,12 @@ export function AuthProvider({ children }) {
 
     api.defaults.headers['Authorization'] = `Bearer ${response.data.access_token}`;
 
-    setTimeout(() => {
-      window.location.reload();
-    }, 1000)
-
-    Router.push('/');
+    //Router.push('admin/dashboard');
   }
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, signIn }}>
+    <AuthAdminContext.Provider value={{ isAuthenticated, signIn }}>
       {children}
-    </AuthContext.Provider>
+    </AuthAdminContext.Provider>
   )
 }

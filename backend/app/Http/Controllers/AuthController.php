@@ -17,13 +17,33 @@ class AuthController extends Controller
         ];
 
         if (!$token = auth('api')->attempt($credentials)) {
-            return response()->json(['error' => true, 'message' => 'Login não autorizado!'], 401);
+            return response()->json(['error' => true, 'message' => 'Login não autorizado!']);
         }
 
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth('api')->factory()->getTTL() * 60
+        ]);
+    }
+
+    public function adminLogin(LoginRequest $request)
+    {
+        $input = $request->validated();
+
+        $credentials = [
+            'email' => $input['email'], 
+            'password' => $input['password']
+        ];
+
+        if (!$token = auth('admin')->attempt($credentials)) {
+            return response()->json(['error' => true, 'message' => 'Login não autorizado!']);
+        }
+
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth('admin')->factory()->getTTL() * 60
         ]);
     }
 

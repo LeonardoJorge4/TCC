@@ -1,8 +1,9 @@
 import React from 'react';
 
 export function Footer() {
+
   return (
-    <footer className="footer bg-dark text-center text-white navbar-fixed-bottom w-100">
+    <footer className="footer bg-dark text-center text-white w-100 position-relative bottom-0">
       <div className="container p-4 pb-0">
         <section className="mb-4">
           <a className="btn btn-outline-light btn-floating m-1" target="_blank" href="https://www.facebook.com/leonardo.conrrado.9/" role="button">
