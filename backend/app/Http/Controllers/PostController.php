@@ -69,4 +69,37 @@ class PostController extends Controller
 
         return response()->json(['success' => 'Postagem criado com sucesso!']);
     }
+
+    public function delete(Request $request)
+    {
+        Posts::find($request->id)->delete();
+
+        return response()->json(['success' => 'Postagem deletado com sucesso!']);
+    }
+
+    public function update(Request $request)
+    {
+        $post = Posts::find($request->id);
+        $post->title = $request->title;
+        $post->subtitle = $request->subtitle;
+        $post->slug = $request->slug;
+        $post->content = $request->content;
+
+        if($request->hasFile('banner') && $request->file('banner')->isValid()) {
+            $requestImage = $request->banner;
+
+            $extension = $requestImage->extension();
+
+            $imageName = md5($requestImage->getClientOriginalName() . strtotime("now")) . '.' . $extension;
+            
+            $requestImage->move('/home/leonardo/Projects/tecnoblog/frontend/public/images/posts', $imageName);
+
+            $post->banner = $imageName;
+        }
+
+        $post->update();
+
+        return response()->json(['success' => 'Postagem alterada com sucesso!']);
+    }
+    
 }

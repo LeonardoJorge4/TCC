@@ -4,12 +4,6 @@
 /node_modules
 /.pnp
 .pnp.js
-.vscode
-/frontend/.next
-/frontend/node_modules
-/frontend/public/images
-/admin/public/images
-/backend/vendor
 
 # testing
 /coverage

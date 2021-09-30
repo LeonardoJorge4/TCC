@@ -27,7 +27,7 @@ class AdminController extends Controller
 
             $imageName = md5($requestImage->getClientOriginalName() . strtotime("now")) . '.' . $extension;
             
-            $requestImage->move('/home/leonardo/ignite-aulas/reactjs/dashgo/public/images/avatar', $imageName);
+            $requestImage->move('/home/leonardo/Projects/tecnoblog/admin/public/images/avatar', $imageName);
 
             $admin->image = $imageName;
         }

@@ -44,6 +44,8 @@ Route::group([
     Route::get('/{slug}', [PostController::class, 'getPost']);
     Route::post('/comment', [PostController::class, 'comment']);
     Route::post('/create', [PostController::class, 'create']);
+    Route::post('/delete', [PostController::class, 'delete']);
+    Route::post('/update', [PostController::class, 'update']);
 });
 
 Route::group([

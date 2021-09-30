@@ -2,7 +2,6 @@ import React, { useContext, useState } from 'react';
 import Pagination from "react-js-pagination";
 import Link from 'next/link';
 import { PostsContext } from '../../contexts/PostsContext';
-import { Footer } from '../../components/Footer';
 
 export default function Posts() {
   const { getAllPosts, posts } = useContext(PostsContext);

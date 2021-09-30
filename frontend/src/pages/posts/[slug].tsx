@@ -15,7 +15,6 @@ interface PostProps {
   banner: string;
   created_at: string;
   updated_at: string;
-  flag: [];
 }
 
 interface FormProps {
@@ -236,7 +235,7 @@ export async function getStaticProps(context) {
   const { params } = context;
   const response = await api.get(`posts/all-posts`)
   const data = response.data.find((item) => item.slug === params.slug)
-  console.log(data)
+
   return {
     props: data
   }
