@@ -23,8 +23,8 @@ Route::group([
 ], function () {
     Route::get('/', [UserController::class, 'index']);
     Route::get('/data', [UserController::class, 'dataResponse']);
-    Route::post('/', [UserController::class, 'create']);
-    Route::put('/', [UserController::class, 'update']);
+    Route::post('/create', [UserController::class, 'create']);
+    Route::post('/update', [UserController::class, 'update']);
 });
 
 Route::group([

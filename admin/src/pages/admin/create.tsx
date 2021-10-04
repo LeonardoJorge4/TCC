@@ -20,7 +20,7 @@ type CreateUserFormData = {
   email: string;
   password: string;
   password_confirmation: string;
-  banner: string;
+  image: string;
 }
 
 const createUserFormSchema = yup.object().shape({
@@ -34,10 +34,9 @@ const createUserFormSchema = yup.object().shape({
 
 
 export default function CreateUser() {
-  const [file, setFile] = useState<any>();
   const router = useRouter()
 
-  const { register, handleSubmit, formState } = useForm({
+  const { register, handleSubmit, formState, reset } = useForm({
     resolver: yupResolver(createUserFormSchema)
   })
 
@@ -46,20 +45,23 @@ export default function CreateUser() {
   const handleCreateUser: SubmitHandler<CreateUserFormData> = async (values) => {
     const formData = new FormData();
 
-    formData.append('banner', values.banner[0])
+    formData.append('image', values.image[0])
     formData.append('name', values.name)
     formData.append('email', values.email)
     formData.append('password', values.password)
 
-    const response = await api.post('admin/create', formData)
+    await api.post('admin/create', formData)
     .then(response => {
+      reset()
       Swal.fire({
         icon: "success",
-        title: `${response.data.success}`
+        title: response.data.success
       })
+      setTimeout(() => {
+        router.push('/admin')
+      }, 1500)
     })
     .catch(err => console.log(err))
-    //router.push('/users')
   }
 
   return (
@@ -120,11 +122,11 @@ export default function CreateUser() {
 
             <SimpleGrid minChildWidth="240px" spacing={["6", "8"]} width="100%">
               <Input 
-                name="banner"
+                name="image"
                 type="file"
                 label="Foto de perfil"
-                error={errors.banner}
-                {...register('banner')}
+                error={errors.image}
+                {...register('image')}
               />
             </SimpleGrid>
 

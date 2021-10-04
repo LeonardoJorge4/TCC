@@ -87,7 +87,7 @@ export default function UserList({ users }) {
 
             <Tbody>
               
-              {data.users.map(user => {
+              {/* {data.users.map(user => {
                 return (
                     <Tr key={user.id}>
                       <Td px={["4", "4","6"]}>
@@ -105,16 +105,16 @@ export default function UserList({ users }) {
                       <Th width="8"></Th>
                   </Tr>
                 )
-              })}
+              })} */}
 
             </Tbody>
 
           </Table>
 
-            <Pagination totalCountOfRegisters={data.totalCount}
+            {/* <Pagination totalCountOfRegisters={data.totalCount}
               currentPage={page}
               onPageChange={setPage}
-            />
+            /> */}
             </>
           )}
 

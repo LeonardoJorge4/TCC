@@ -2,19 +2,24 @@ import React, { useRef, useState } from 'react'
 import { Form } from '@unform/web'
 import InputForm from '../components/InputForm';
 import * as yup from 'yup';
+import { api } from '../services/api';
+import Swal from 'sweetalert2';
+import { useRouter } from 'next/router';
+import InputFormFile from '../components/InputFormFile';
 interface FormProps {
   name: string;
   email: string;
   picture: string;
   password: string;
-  receivePosts: boolean;
+  receivePosts: any;
 }
 
 export default function Cadastro() {
   const formRef = useRef(null);
+  const router = useRouter()
   const [checked, setChecked] = useState<boolean>(false);
 
-  async function handleSubmit(data: FormProps) {
+  async function handleSubmit(data: FormProps, { reset }) {
     try {
       // Remove all previous errors
       formRef.current.setErrors({});
@@ -32,8 +37,29 @@ export default function Cadastro() {
       await schema.validate(data, {
         abortEarly: false,
       });
+
       // Validation passed
-      console.log(data);
+      const formData = new FormData();
+
+      formData.append('name', data.name);
+      formData.append('email', data.email);
+      formData.append('password', data.password);
+      formData.append('image', data.picture);
+      formData.append('receiveEmailPosts', checked ? 'true' : 'false');
+
+      await api.post('/users/create', formData)
+      .then(response => {
+        reset()
+        Swal.fire({
+          icon: "success",
+          title: response.data.success
+        })
+        setTimeout(() => {
+          router.push('/')
+        }, 1500)
+      })
+      .catch(err => console.log(err))
+
     } catch (err) {
       const validationErrors = {};
       if (err instanceof yup.ValidationError) {
@@ -79,10 +105,8 @@ export default function Cadastro() {
 
             <div className="col-12">
               <label htmlFor="picture" className="form-label">Foto de perfil</label>
-              <InputForm 
-                id="picture"
+              <InputFormFile 
                 name="picture"
-                type="file"
                 className="form-control form-control-lg"
               />
             </div>

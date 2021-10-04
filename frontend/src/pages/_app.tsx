@@ -1,8 +1,9 @@
+import React, { useContext } from 'react'
 import { AppProps } from 'next/app';
 import { Header } from "../components/Header";
 import ScrollToTop from "react-scroll-to-top";
 
-import { AuthProvider } from '../contexts/AuthContext'
+import { AuthContext, AuthProvider } from '../contexts/AuthContext'
 
 import '../styles/global.scss';
 import { Footer } from '../components/Footer';
@@ -11,7 +12,7 @@ import { useRouter } from 'next/router';
 import { AuthAdminProvider } from '../contexts/AuthAdminContext';
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const router = useRouter();
+  const { user } = useContext(AuthContext)
 
   return (
     <>
@@ -19,12 +20,11 @@ function MyApp({ Component, pageProps }: AppProps) {
         <AuthProvider>
           <PostsProvider>
             <Header />
+
             <ScrollToTop smooth style={{ padding: 4, boxShadow: "rgba(0, 0, 0, 0.35)" }} />
             <Component {...pageProps} />
-            {
-              router.asPath !== '/admin/login' &&
-              <Footer />
-            }
+
+            <Footer />
           </PostsProvider>
         </AuthProvider>
       </AuthAdminProvider>

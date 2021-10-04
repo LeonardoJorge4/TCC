@@ -1,3 +1,4 @@
+import React from 'react'
 import { Header } from "../components/Header/index";
 import dynamic from 'next/dynamic'
 import { Flex, SimpleGrid, Box, Text,theme } from '@chakra-ui/react'

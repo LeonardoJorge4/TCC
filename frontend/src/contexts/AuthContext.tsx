@@ -1,10 +1,12 @@
 import { createContext, useEffect, useState } from "react";
 import { api } from "../services/api";
-import { setCookie, parseCookies } from 'nookies';
+import { setCookie, parseCookies, destroyCookie } from 'nookies';
 import Router from 'next/router';
 import Swal from 'sweetalert2'
+import { error } from "console";
 
 type User = {
+  id: string;
   name: string;
   email: string;
   image?: File;
@@ -14,16 +16,22 @@ type User = {
 type SignInData = {
   email: string;
   password: string;
-  remember: boolean;
 }
 
 type AuthContextType = {
   isAuthenticated: boolean;
   user: User;
+  setUser: (value: string) => void;
   signIn: (data: SignInData) => Promise<void>;
 }
 
 export const AuthContext = createContext({} as AuthContextType)
+
+export function signOut() {
+  destroyCookie(undefined, 'tecnoblog.token')
+
+  Router.push('/')
+}
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState<User | null>(null);
@@ -36,19 +44,25 @@ export function AuthProvider({ children }) {
     if(token) {
       api.get('users/data').then(
         response => {
-          const { name, email, image, receive_email } = response.data;
+          const { id, name, email, image, receive_email } = response.data;
 
-          setUser({ name, email, image, receive_email })
+          setUser({ id, name, email, image, receive_email })
         }
-      );
+      )
+      .catch(() => {
+        destroyCookie(undefined, 'tecnoblog.token')
+
+        Router.push('/')
+      })
     }
   }, [])
 
-  async function signIn({ email, password, remember }: SignInData) {
+  async function signIn({ email, password }: SignInData) {
 
     const response = await api.post('login', {
       email, password
-    }).catch();
+    })
+    .catch(err => console.log(err));
 
     if(response.data.error) {
       Swal.fire({
@@ -69,14 +83,6 @@ export function AuthProvider({ children }) {
     
     setUser(user);
 
-    Swal.fire({
-      position: 'top-end',
-      icon: 'success',
-      title: 'Login efetuado com sucesso',
-      showConfirmButton: false,
-      timer: 2000
-    })
-
     api.defaults.headers['Authorization'] = `Bearer ${response.data.access_token}`;
 
     setTimeout(() => {
@@ -84,10 +90,18 @@ export function AuthProvider({ children }) {
     }, 1000)
 
     Router.push('/');
+
+    Swal.fire({
+      position: 'top-end',
+      icon: 'success',
+      title: 'Login efetuado com sucesso',
+      showConfirmButton: false,
+      timer: 2000
+    })
   }
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, signIn }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, signIn, setUser }}>
       {children}
     </AuthContext.Provider>
   )
