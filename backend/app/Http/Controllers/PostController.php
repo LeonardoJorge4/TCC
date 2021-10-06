@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Mail\MailSender;
 use App\Models\Administrator;
+use App\Models\Comments;
 use App\Models\Posts;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class PostController extends Controller
 {
@@ -41,7 +45,14 @@ class PostController extends Controller
 
     public function comment(Request $request)
     {
-        dd($request);
+        $comment = new Comments;
+        $comment->user_id = $request->userId;
+        $comment->post_id = $request->id;
+        $comment->content = $request->comment;
+
+        $comment->save();
+
+        return response()->json(['success' => 'Comentário adicionado com sucesso!']);
     }
 
     public function create(Request $request)
@@ -66,6 +77,22 @@ class PostController extends Controller
         }
 
         $post->save();
+
+        $emailUsers = User::where('receive_email', '=', 'true')->get('email');
+
+        $details = [
+            'title' => 'Nova postagem no blog!',
+            'body' => 'teste email'
+        ];
+
+        try {
+            foreach($emailUsers as $email){
+                Mail::to($email)->send(new MailSender($details, $request->slug));
+            }
+        } catch (\Throwable $th) {
+            return response()->json($th);
+        }
+
 
         return response()->json(['success' => 'Postagem criado com sucesso!']);
     }

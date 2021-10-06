@@ -3,6 +3,14 @@ import { parseCookies, setCookie } from 'nookies';
 
 let cookies = parseCookies();
 
+export const apiPost = axios.create({
+  baseURL: 'http://localhost:8000/api',
+  headers: {
+    Authorization: `Bearer ${cookies['tecnoblog.tokenAdmin']}`
+  }
+})
+
+
 export const api = axios.create({
   baseURL: 'http://localhost:8001/api',
   headers: {
@@ -13,31 +21,32 @@ export const api = axios.create({
 api.interceptors.response.use(response => {
   return response
 }, (error: AxiosError) => {
-  if(error.response.status === 401) {
-    if(error.response.data?.code === 'token.expired') {
-      cookies = parseCookies();
+  console.log(error);
+  // if(error.response.status === 401) {
+  //   if(error.response.data?.code === 'token.expired') {
+  //     cookies = parseCookies();
 
-      const { 'tecnoblog.refreshTokenAdmin': refreshToken } = cookies;
+  //     const { 'tecnoblog.refreshTokenAdmin': refreshToken } = cookies;
 
-      api.post('/auth/refresh', {
-        refreshToken,
-      }).then(response => {
-        const { token } = response.data
+  //     api.post('/auth/refresh', {
+  //       refreshToken,
+  //     }).then(response => {
+  //       const { token } = response.data
 
-        setCookie(undefined, 'tecnoblog.tokenAdmin', token, {
-          maxAge: 60 * 60 * 1, //1 hour
-          path: '/'
-        })
+  //       setCookie(undefined, 'tecnoblog.tokenAdmin', token, {
+  //         maxAge: 60 * 60 * 1, //1 hour
+  //         path: '/'
+  //       })
 
-        setCookie(undefined, 'tecnoblog.refreshTokenAdmin', token, {
-          maxAge: 60 * 60 * 1, //1 hour
-          path: '/'
-        })
+  //       setCookie(undefined, 'tecnoblog.refreshTokenAdmin', token, {
+  //         maxAge: 60 * 60 * 1, //1 hour
+  //         path: '/'
+  //       })
 
-        api.defaults.headers['Authorization'] = `Bearer ${token}`
-      })
-    } else {
+  //       api.defaults.headers['Authorization'] = `Bearer ${token}`
+  //     })
+  //   } else {
       
-    }
-  }
+  //   }
+  // }
 })

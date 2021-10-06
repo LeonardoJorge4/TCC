@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as yup from 'yup';
 import Link from 'next/link'
-import { api } from '../../../services/api';
+import { api, apiPost } from '../../../services/api';
 import { Box, Divider, Flex, Heading, VStack, SimpleGrid, HStack, Button } from "@chakra-ui/react";
 import { Header } from '../../../components/Header';
 import { Sidebar } from '../../../components/Sidebar';
@@ -60,7 +60,7 @@ export default function UpdatePosts({ id, slug, title, subtitle, banner, content
       formData.append('slug', values.slug)
       formData.append('content', contentData)
 
-      await api.post('posts/update', formData)
+      await apiPost.post('posts/update', formData)
       .then(response => {
         Swal.fire({
           icon: "success",
@@ -79,7 +79,6 @@ export default function UpdatePosts({ id, slug, title, subtitle, banner, content
     }
     
   }
-
 
   return editorLoaded && (
     <Box>
@@ -182,7 +181,7 @@ export default function UpdatePosts({ id, slug, title, subtitle, banner, content
 
 export async function getStaticProps(context) {
   const { params } = context;
-  const response = await api.get(`posts/all-posts`)
+  const response = await apiPost.get(`posts/all-posts`)
   const data = response.data.find((item) => item.slug === params.slug)
 
   return {
@@ -191,7 +190,7 @@ export async function getStaticProps(context) {
 }
 
 export async function getStaticPaths() {
-  const response = await api.get(`posts/all-posts`)
+  const response = await apiPost.get(`posts/all-posts`)
 
   return {
     paths: response.data.map((item) => ({
@@ -201,4 +200,5 @@ export async function getStaticPaths() {
     })),
     fallback: false
   };
+  
 }

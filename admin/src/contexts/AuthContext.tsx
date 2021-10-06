@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { api } from "../services/api";
-import { setCookie, parseCookies } from 'nookies';
+import { setCookie, parseCookies, destroyCookie } from 'nookies';
 import Router from 'next/router';
 import Swal from 'sweetalert2'
 
@@ -20,47 +20,49 @@ type SignInData = {
 type AuthContextType = {
   isAuthenticated: boolean;
   user: Admin;
+  loading: boolean;
   signIn: (data: SignInData) => Promise<void>;
 }
 
 export const AuthContext = createContext({} as AuthContextType)
 
+export function signOut() {
+  destroyCookie(undefined, 'tecnoblog.tokenAdmin')
+
+  Router.push('/')
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState<Admin | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const isAuthenticated = !!user;
 
   useEffect(() => {
     const { 'tecnoblog.tokenAdmin': token } = parseCookies();
 
-    async function getDataUser() {
       if(token) {
-        await api.get('auth/data').then(
+        setLoading(true)
+        api.get('/admin/login').then(
           response => {
             const { id, name, email, image, role } = response.data;
   
             setUser({ id, name, email, image, role })
           }
-        );
-
-        Swal.fire({
-          position: 'top-end',
-          icon: 'success',
-          title: 'Login efetuado com sucesso',
-          showConfirmButton: false,
-          timer: 2000
+        ).catch(() => {
+          destroyCookie(undefined, 'tecnoblog.tokenAdmin')
+  
+          Router.push('/')
         })
-
-        Router.push('/dashboard');
+        setLoading(false)
       } else {
         Router.push('/')
       }
-    }
 
-    getDataUser();
   }, [])
 
   async function signIn({ email, password }: SignInData) {
+    setLoading(true)
 
     const formData = new FormData();
     formData.append('email', email)
@@ -77,16 +79,11 @@ export function AuthProvider({ children }) {
         confirmButtonColor: '#0d6efd',
         timer: 2000
       })
-
+      setLoading(false)
       return;
     }
 
     setCookie(undefined, 'tecnoblog.tokenAdmin', response.data.access_token, {
-      maxAge: 60 * 60 * 1, //1 hour
-      //maxAge: 5, //5 sec
-    })
-
-    setCookie(undefined, 'tecnoblog.refreshTokenAdmin', response.data.access_token, {
       maxAge: 60 * 60 * 1, //1 hour
       //maxAge: 5, //5 sec
     })
@@ -95,17 +92,11 @@ export function AuthProvider({ children }) {
 
     api.defaults.headers['Authorization'] = `Bearer ${response.data.access_token}`;
 
-    const { 'tecnoblog.tokenAdmin': token } = parseCookies();
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000)
 
-    if(token) {
-      await api.get('auth/data').then(
-        response => {
-          const { id, name, email, image, role } = response.data;
-
-          setUser({ id, name, email, image, role })
-        }
-      );
-
+    setTimeout(() => {
       Swal.fire({
         position: 'top-end',
         icon: 'success',
@@ -113,16 +104,14 @@ export function AuthProvider({ children }) {
         showConfirmButton: false,
         timer: 2000
       })
-
+      setLoading(false)
       Router.push('/dashboard');
-    } else {
-      Router.push('/')
-    }
+    }, 1500)
 
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, signIn }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, signIn, loading }}>
       {children}
     </AuthContext.Provider>
   )

@@ -4,19 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    /**
-     * Create a new AuthController instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('auth:api', ['except' => ['login']]);
-    }
-
     public function login(LoginRequest $request)
     {
         $input = $request->validated();
@@ -26,7 +17,7 @@ class AuthController extends Controller
             'password' => $input['password']
         ];
 
-        if (! $token = auth()->attempt($credentials)) {
+        if (! $token = auth('api')->attempt($credentials)) {
             return response()->json(['error' => true, 'message' => 'Login não autorizado!']);
         }
 
@@ -36,7 +27,7 @@ class AuthController extends Controller
 
     public function me()
     {
-        return response()->json(auth()->user());
+        return Auth::user();
     }
 
     /**
@@ -74,7 +65,7 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
+            'expires_in' => auth('api')->factory()->getTTL() * 60
         ]);
     }
 }

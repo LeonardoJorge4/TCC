@@ -24,41 +24,19 @@ import { Header } from "../../components/Header";
 
 import { Sidebar } from "../../components/Sidebar";
 import NextLink from 'next/link';
-import { api } from "../../services/api";
+import { api, apiPost } from "../../services/api";
 import { PostsContext } from "../../contexts/PostsContext";
 import Swal from "sweetalert2";
 import { useRouter } from "next/router";
 
-type User = {
-	id: string;
-	name: string;
-	email: string;
-	created_at: string;
-}
-
 const Posts = () => {
   const router = useRouter()
   const { getAllPosts, posts } = useContext(PostsContext);
-	const [page, setPage] = useState(1);
-	// const { data, isLoading, error, isFetching } = useUsers<User>(page);
-
-	const isWideVersion = useBreakpointValue({
-		base: false,
-		lg: true,
-	});
-
-	const handlePrefetchData = async (userId: string) => {
-		// await queryClient.prefetchQuery(['user', userId], async () => {
-		// 	const { data } = await api.get(`/users/${userId}`);
-
-		// 	return data;
-		// }, { staleTime: 1000 * 60 * 10 });
-	}
 
   async function deletePosts (id) {
     const formData = new FormData();
     formData.append('id', id)
-    await api.post('/posts/delete', formData)
+    await apiPost.post('/posts/delete', formData)
     .then(response => {
       Swal.fire({
         icon: "success",
@@ -168,14 +146,18 @@ const Posts = () => {
 								currentPage={page}
 								onPageChange={setPage}
 							/> */}
+              {
+              posts &&
               <Pagination 
-                activePage={posts && posts.current_page}
-                totalItemsCount={posts && posts.total}
-                itemsCountPerPage={posts && posts.per_page}
+                activePage={posts.current_page}
+                totalItemsCount={posts.total}
+                itemsCountPerPage={posts.per_page}
                 onChange={(pageNumber) => getAllPosts(pageNumber)}
                 itemClass="page-item"
                 linkClass="page-link"
               />
+              }
+
 						</>
 					
 				</Box>

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PostController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -46,6 +47,14 @@ Route::group([
     Route::post('/create', [PostController::class, 'create']);
     Route::post('/delete', [PostController::class, 'delete']);
     Route::post('/update', [PostController::class, 'update']);
+});
+
+Route::group([
+    'prefix' => 'comments'
+], function () {
+    Route::post('/quantity', [CommentController::class, 'quantity']);
+    Route::post('/content', [CommentController::class, 'getContent']);
+    Route::post('/users', [CommentController::class, 'getUsers']);
 });
 
 Route::group([

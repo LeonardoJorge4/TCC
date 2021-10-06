@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState } from "react";
-import { api } from "../services/api";
+import { api, apiPost } from "../services/api";
 
 interface PostContextProps {
   posts: PostProps;
@@ -50,7 +50,7 @@ export function PostsProvider({ children }) {
   }, [])
 
   async function getAllPosts(pageNumber = 1) {
-    await api.get(`posts?page=${pageNumber}`)
+    await apiPost.get(`posts?page=${pageNumber}`)
       .then(response => setPosts(response.data))
       .catch(error => console.log(error))
   }

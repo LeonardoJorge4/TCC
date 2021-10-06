@@ -134,7 +134,7 @@ export default function CreateUser() {
 
             <Flex mt="8" justify="flex-end">
               <HStack spacing="4">
-                <Link href="/users">
+                <Link href="/dashboard">
                   <Button as="a" colorScheme="whiteAlpha">Cancelar</Button>
                 </Link>
                 <Button 

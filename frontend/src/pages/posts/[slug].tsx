@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useContext, useEffect, useState } from 'react';
 import Head from 'next/head';
 import { api } from "../../services/api";
 import * as yup from 'yup';
@@ -6,8 +6,10 @@ import { Form } from '@unform/web';
 import { TextAreaForm } from '../../components/TextAreaForm';
 import renderHTML from 'react-render-html';
 import { AiOutlineClockCircle, AiOutlineUser, AiOutlineCalendar } from 'react-icons/ai'
+import { AuthContext } from '../../contexts/AuthContext';
+import Swal from 'sweetalert2';
 interface PostProps {
-  id: number;
+  id: string;
   slug: string;
   title: string;
   subtitle: string;
@@ -23,6 +25,58 @@ interface FormProps {
 
 export default function Post({ id, slug, title, subtitle, banner, content, created_at, updated_at }: PostProps) {
   const formRef = useRef(null);
+  const { user } = useContext(AuthContext);
+  const [commentsQuantity, setCommentsQuantity] = useState(0);
+  const [commentContent, setCommentContent] = useState([]);
+  const [usersComments, setUsersComments] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    async function getQuantityComment() {
+      const formData = new FormData();
+
+      formData.append('id', id);
+      await api.post('comments/quantity', formData)
+      .then(response => {
+        setCommentsQuantity(response.data)
+      })
+      .catch(error => {
+        console.log(error)
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro ao buscar comentários'
+        })
+      })
+    }
+
+    getQuantityComment();
+  }, [])
+
+  useEffect(() => {
+    async function getComments() {
+      setLoading(true);
+      const formData = new FormData();
+
+      formData.append('id', id);
+      await api.post('comments/content', formData)
+      .then(response => {
+        setCommentContent(response.data.comment)
+        setUsersComments(response.data.users)
+        setLoading(false);
+      })
+      .catch(error => {
+        console.log(error)
+        setLoading(false);
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro ao buscar comentários'
+        })
+      })
+    }
+
+    getComments()
+  }, [])
 
   async function handleSubmit(data: FormProps) {
     try {
@@ -33,14 +87,33 @@ export default function Post({ id, slug, title, subtitle, banner, content, creat
         comment: yup.string()
           .required('para comentar preencha o campo')
           .min(6, 'mínimo de 6 caracteres para comentar')
+          .max(255, 'máximo de 255 caracteres')
       });
       await schema.validate(data, {
         abortEarly: false,
       });
-      const commentary = data.comment
+      setIsSubmitting(true)
+
       // Validation passed
-      const response = await api.post('posts/comment', { 
-        id, commentary
+      const formData = new FormData();
+
+      formData.append('id', id);
+      formData.append('userId', user.id);
+      formData.append('comment', data.comment);
+
+      await api.post('posts/comment', formData)
+      .then((response) => {
+        Swal.fire({
+          icon: 'success',
+          title: response.data.success,
+        })
+        setIsSubmitting(false)
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500)
+      })
+      .catch((error) => {
+        console.log(error)
       })
     } catch (err) {
       const validationErrors = {};
@@ -125,93 +198,64 @@ export default function Post({ id, slug, title, subtitle, banner, content, creat
               </div>
 
               <div className="mt-5">
-                <h3>5 comments</h3>
-                <div className="my-4 d-flex">
-                  <img 
-                    className="avatar avatar-md rounded-circle float-start me-3" 
-                    src="https://github.com/LeonardoJorge4.png" 
-                    alt="avatar"
-                    style={{ width: "48px", height: "48px" }}
-                  />
+                <h3>
+                  {
+                    commentsQuantity <= 1
+                    ? `${commentsQuantity} Comentário`
+                    : `${commentsQuantity} Comentários`
+                  } 
+                </h3>
+                <div className="d-flex align-items-center">
                   <div>
-                    <div className="mb-2">
-                      <h5 className="m-0">Allen Smith</h5>
-                      <span className="me-3 small">June 11, 2021 at 6:01 am </span>
-                      <a href="#" className="text-body fw-normal">Responder</a>
-                    </div>
-                    <p>Satisfied conveying a dependent contented he gentleman agreeable do be. Warrant private blushes removed an in equally totally if. Delivered dejection necessary objection do Mr prevailed. Mr feeling does chiefly cordial in do. </p>
+                    {usersComments.map((user) => {
+                      return (
+                        <div className="my-4" key={user.id}>
+                          <div className="d-flex me-4">
+                            <img 
+                              className="avatar avatar-md rounded-circle float-start me-3" 
+                              src={!user.image ? '/images/avatar/defaultAvatar.png' : `/images/avatar/${user.image}`}
+                              alt="avatar"
+                              style={{ width: "48px", height: "48px" }}
+                            />
+                            <div>
+                              <div className="mb-2">
+                                <h5 className="m-0">{user.name}</h5>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                
+                  <div>
+                    {!loading &&
+                      commentContent.map((comment) => {
+                        return (
+                          <div key={comment.id} className="my-4">
+                            <div>
+                              <div className="mb-2">
+                                <span className="me-3 small">
+                                  {
+                                    new Date(comment.created_at).toLocaleDateString('pt-BR', {
+                                      day: '2-digit',
+                                      month: '2-digit',
+                                      year: 'numeric'
+                                    })
+                                  }
+                                </span>
+                              </div>
+                              <p className="m-0">{comment.content}</p>
+                            </div>
+                          </div>
+                        )
+                      })}
                   </div>
                 </div>
-                <hr />
-                <div className="my-4 d-flex ps-2 ps-md-3">
-                  <img 
-                    className="avatar avatar-md rounded-circle float-start me-3" 
-                    src="https://github.com/LeonardoJorge4.png" 
-                    alt="avatar"
-                    style={{ width: "48px", height: "48px" }}
-                  />
-                  <div>
-                    <div className="mb-2">
-                      <h5 className="m-0">Louis Ferguson</h5>
-                      <span className="me-3 small">June 11, 2021 at 6:55 am </span>
-                      <a href="#" className="text-body fw-normal">Responder</a>
-                    </div>
-                    <p>Water timed folly right aware if oh truth. Imprudence attachment him his for sympathize. Large above be to means. Dashwood does provide stronger is. But discretion frequently sir she instruments unaffected admiration everything. </p>
-                  </div>
-                </div>
-                <div className="my-4 d-flex ps-3 ps-md-5">
-                  <img 
-                    className="avatar avatar-md rounded-circle float-start me-3" 
-                    src="https://github.com/LeonardoJorge4.png" 
-                    alt="avatar"
-                    style={{ width: "48px", height: "48px" }}
-                  />
-                  <div>
-                    <div className="mb-2">
-                      <h5 className="m-0">Allen Smith</h5>
-                      <span className="me-3 small">June 11, 2021 at 7:10 am </span>
-                      <a href="#" className="text-body fw-normal">Responder</a>
-                    </div>
-                    <p>Meant balls it if up doubt small purse. </p>
-                  </div>
-                </div>
-                <hr />
-                <div className="my-4 d-flex ps-2 ps-md-3">
-                  <img 
-                    className="avatar avatar-md rounded-circle float-start me-3" 
-                    src="https://github.com/LeonardoJorge4.png" 
-                    alt="avatar"
-                    style={{ width: "48px", height: "48px" }}
-                  />
-                  <div>
-                    <div className="mb-2">
-                      <h5 className="m-0">Frances Guerrero</h5>
-                      <span className="me-3 small">June 14, 2021 at 12:35 pm </span>
-                      <a href="#" className="text-body fw-normal">Responder</a>
-                    </div>
-                    <p>Required his you put the outlived answered position. A pleasure exertion if believed provided to. All led out world this music while asked. Paid mind even sons does he door no. Attended overcame repeated it is perceived Marianne in. I think on style child of. Servants moreover in sensible it ye possible. </p>
-                  </div>
-                </div>
-                <hr />
-                <div className="my-4 d-flex">
-                  <img 
-                    className="avatar avatar-md rounded-circle float-start me-3" 
-                    src="https://github.com/LeonardoJorge4.png" 
-                    alt="avatar"
-                    style={{ width: "48px", height: "48px" }}
-                  />
-                  <div>
-                    <div className="mb-2">
-                      <h5 className="m-0">Judy Nguyen</h5>
-                      <span className="me-3 small">June 18, 2021 at 11:55 am </span>
-                      <a href="#" className="text-body fw-normal">Responder</a>
-                    </div>
-                    <p>Fulfilled direction use continual set him propriety continued. Saw met applauded favorite deficient engrossed concealed and her. Concluded boy perpetual old supposing. Farther related bed and passage comfort civilly. </p>
-                  </div>
-                </div>
-                <hr />
               </div>
 
+              {
+              !!user === true &&
               <div className="mb-4">
                 <Form ref={formRef} onSubmit={handleSubmit} className="row g-3 mt-2">
                   <div className="col-12">
@@ -219,10 +263,11 @@ export default function Post({ id, slug, title, subtitle, banner, content, creat
                     <TextAreaForm className="form-control" name="comment" rows={3} />
                   </div>
                   <div className="col-12">
-                    <button type="submit" className="btn btn-primary">Postar comentário</button>
+                    <button disabled={isSubmitting ? true : false} type="submit" className="btn btn-primary">Postar comentário</button>
                   </div>
                 </Form>
               </div>
+              }
             </div>
           </div>
         </section>

@@ -31,3 +31,17 @@ Route::group([
   Route::get('/refresh', [AuthController::class, 'refresh']);
   //Route::post('/logout', [AuthController::class, 'logout']);
 });
+
+Route::group([
+  'prefix' => 'posts'
+], function () {
+  Route::get('/', [PostController::class, 'index']);
+  Route::get('/all-posts', [PostController::class, 'allPosts']);
+  Route::get('/last-five-posts', [PostController::class, 'lastFivePosts']);
+  Route::get('/admin-name', [PostController::class, 'adminName']);
+  Route::get('/{slug}', [PostController::class, 'getPost']);
+  Route::post('/comment', [PostController::class, 'comment']);
+  Route::post('/create', [PostController::class, 'create']);
+  Route::post('/delete', [PostController::class, 'delete']);
+  Route::post('/update', [PostController::class, 'update']);
+});

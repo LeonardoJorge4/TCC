@@ -12,7 +12,7 @@ import { Header } from "../../components/Header";
 import { Sidebar } from "../../components/Sidebar";
 import { Input } from "../../components/Form/Input";
 
-import { api } from "../../services/api";
+import { api, apiPost } from "../../services/api";
 
 interface CreatePostFormData {
   title: string;
@@ -58,7 +58,7 @@ export default function CreatePosts() {
       formData.append('slug', values.slug)
       formData.append('content', content)
 
-      const response = await api.post('posts/create', formData)
+      const response = await apiPost.post('posts/create', formData)
       .then(response => {
         Swal.fire({
           icon: "success",
