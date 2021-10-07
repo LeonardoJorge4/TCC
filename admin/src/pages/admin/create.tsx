@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Box, Divider, Flex, Heading, VStack, SimpleGrid, HStack, Button } from "@chakra-ui/react";
+import React, { useEffect, useContext } from "react";
+import { Box, Divider, Flex, Heading, VStack, SimpleGrid, HStack, Button, Select as ChakraSelect } from "@chakra-ui/react";
 import Swal from 'sweetalert2'
 
 import { useRouter } from "next/dist/client/router";
@@ -10,10 +10,12 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 import { Input } from "../../components/Form/Input";
+import { Select } from "../../components/Form/Select";
 import { Header } from "../../components/Header/index";
 import { Sidebar } from "../../components/Sidebar/index";
 
 import { api } from "../../services/api";
+import { AuthContext } from "../../contexts/AuthContext";
 
 type CreateUserFormData = {
   name: string;
@@ -21,6 +23,7 @@ type CreateUserFormData = {
   password: string;
   password_confirmation: string;
   image: string;
+  role: string;
 }
 
 const createUserFormSchema = yup.object().shape({
@@ -29,12 +32,14 @@ const createUserFormSchema = yup.object().shape({
   password: yup.string().required('Senha obrigatória').min(6, 'No mínimo 6 caracteres'),
   password_confirmation: yup.string().oneOf([
     null, yup.ref('password')
-  ], 'As senhas precisam ser iguais')
+  ], 'As senhas precisam ser iguais'),
+  role: yup.string().required('Permissão obrigatória')
 })
 
 
 export default function CreateUser() {
   const router = useRouter()
+  const { user } = useContext(AuthContext)
 
   const { register, handleSubmit, formState, reset } = useForm({
     resolver: yupResolver(createUserFormSchema)
@@ -49,6 +54,7 @@ export default function CreateUser() {
     formData.append('name', values.name)
     formData.append('email', values.email)
     formData.append('password', values.password)
+    formData.append('role', values.role)
 
     await api.post('admin/create', formData)
     .then(response => {
@@ -58,11 +64,17 @@ export default function CreateUser() {
         title: response.data.success
       })
       setTimeout(() => {
-        router.push('/admin')
+        router.push('/dashboard')
       }, 1500)
     })
     .catch(err => console.log(err))
   }
+
+  useEffect(() => {
+    if(user && user.role === 'admin') {
+      router.push('/dashboard')
+    }
+  }, [user])
 
   return (
     <Box>
@@ -117,6 +129,14 @@ export default function CreateUser() {
                 label="Confirmação da senha" 
                 error={errors.password_confirmation}
                 {...register('password_confirmation')} 
+              />
+            </SimpleGrid>
+
+            <SimpleGrid minChildWidth="240px" spacing={["6", "8"]} width="100%">
+              <Select 
+                placeholder="Selecione o tipo de admin..."
+                error={errors.role}
+                {...register('role')}
               />
             </SimpleGrid>
 

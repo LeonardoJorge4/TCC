@@ -95,19 +95,16 @@ export function AuthProvider({ children }) {
     setTimeout(() => {
       window.location.reload();
     }, 1000)
-
-    setTimeout(() => {
-      Swal.fire({
-        position: 'top-end',
-        icon: 'success',
-        title: 'Login efetuado com sucesso',
-        showConfirmButton: false,
-        timer: 2000
-      })
-      setLoading(false)
-      Router.push('/dashboard');
-    }, 1500)
-
+    
+    setLoading(false)
+    Router.push('/dashboard');
+    Swal.fire({
+      position: 'top-end',
+      icon: 'success',
+      title: 'Login efetuado com sucesso',
+      showConfirmButton: false,
+      timer: 2000
+    })
   }
 
   return (

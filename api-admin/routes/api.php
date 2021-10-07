@@ -21,6 +21,7 @@ Route::group([
 ], function () {
   Route::get('/login', [AdminController::class, 'login']);
   Route::post('/create', [AdminController::class, 'create']);
+  Route::post('/get-admin-name', [AdminController::class, 'getNameAdmin']);
 });
 
 Route::group([

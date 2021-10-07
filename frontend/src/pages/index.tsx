@@ -2,22 +2,40 @@ import React, { useState, useEffect } from 'react';
 import styles from './styles.module.scss';
 import { FiCalendar } from "react-icons/fi";
 import { IoArrowForwardCircleOutline } from "react-icons/io5";
-import { api } from '../services/api';
+import { api, apiAdmin } from '../services/api';
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
   const [adminName, setAdminName] = useState([]);
 
   useEffect(() => {
-    const response = api.get('posts/last-five-posts')
-    .then(response => setPosts(response.data))
-    .catch(error => console.log(error))
+    async function getFivePosts() {
+      await api.get('posts/last-five-posts')
+      .then(response => setPosts(response.data))
+      .catch(error => console.log(error))
+    }
+
+    getFivePosts()
   }, [])
 
   useEffect(() => {
-    const response = api.get('posts/admin-name')
-    .then(response => console.log(response.data))
-  }, []);
+    async function getAdminNames() {
+      const formData = new FormData();
+
+      for (var i = 0; i < posts.length; i++) {
+        formData.append('id[]', posts[i].admin_id);
+      }
+      await apiAdmin.post('admin/get-admin-name', formData)
+      .then(response => {
+        setAdminName(response.data)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+    }
+
+    getAdminNames()
+  }, [posts]);
 
   return (
     <>
@@ -27,13 +45,12 @@ export default function Home() {
           {
             posts.map(post => {
               return (
-                <div className={styles.containerPost}>
+                <div key={post.id} className={styles.containerPost}>
                   <div className={styles.gridPost}>
                     <div className={styles.contentPost}>
                       <h2><a href={`/posts/${post.slug}`}>{post.title}</a></h2>
                       <h3><a href={`/posts/${post.slug}`}>{post.subtitle}</a></h3>
                       <div className={styles.author}>
-                        <span>por <b>Leonardo Jorge</b></span>
                         <span>
                           <FiCalendar className={styles.calendarIcon}/>
                           {
@@ -57,6 +74,16 @@ export default function Home() {
               )   
             })
           }
+          <div className="d-flex align-items-center">
+            <h4 className="me-3">Criadores: </h4>
+            <div className="d-flex flex-column">
+            {
+              adminName && adminName.map((admin) => (
+                <span>por <b>{admin.name}</b></span>
+              ))
+            }
+            </div>
+          </div>
         </div>
       </div>
     </>

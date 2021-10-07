@@ -21,6 +21,7 @@ type SignInData = {
 type AuthContextType = {
   isAuthenticated: boolean;
   user: User;
+  loading: boolean;
   setUser: (value: string) => void;
   signIn: (data: SignInData) => Promise<void>;
 }
@@ -35,6 +36,7 @@ export function signOut() {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const isAuthenticated = !!user;
 
@@ -42,14 +44,17 @@ export function AuthProvider({ children }) {
     const { 'tecnoblog.token': token } = parseCookies();
 
     if(token) {
+      setLoading(true)
       api.get('users/data').then(
         response => {
           const { id, name, email, image, receive_email } = response.data;
 
           setUser({ id, name, email, image, receive_email })
+          setLoading(false)
         }
       )
       .catch(() => {
+        setLoading(false)
         destroyCookie(undefined, 'tecnoblog.token')
 
         Router.push('/')
@@ -58,7 +63,7 @@ export function AuthProvider({ children }) {
   }, [])
 
   async function signIn({ email, password }: SignInData) {
-
+    setLoading(true)
     const response = await api.post('login', {
       email, password
     })
@@ -72,7 +77,7 @@ export function AuthProvider({ children }) {
         confirmButtonColor: '#0d6efd',
         timer: 2000
       })
-
+      setLoading(false)
       return;
     }
 
@@ -89,6 +94,7 @@ export function AuthProvider({ children }) {
       window.location.reload();
     }, 1000)
 
+    setLoading(false)
     Router.push('/');
 
     Swal.fire({
@@ -101,7 +107,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, signIn, setUser }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, loading, signIn }}>
       {children}
     </AuthContext.Provider>
   )

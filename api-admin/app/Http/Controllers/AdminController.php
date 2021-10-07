@@ -18,6 +18,7 @@ class AdminController extends Controller
         $admin = new Administrator;
         $admin->name = $request->name;
         $admin->email = $request->email;
+        $admin->role = $request->role;
         $admin->password = bcrypt($request->password);
         
         if($request->hasFile('image') && $request->file('image')->isValid()) {
@@ -35,5 +36,27 @@ class AdminController extends Controller
         $admin->save();
 
         return response()->json(['success' => 'Administrador criado com sucesso!']);
+    }
+
+    public function getNameAdmin(Request $request)
+    {
+        if(is_array($request->id)) {
+            $data = [];
+            foreach($request->id as $key => $id) {
+                $data[$key] = Administrator::where("id", '=', $id)->get('name');
+            }
+
+            $dataReturn = [];
+
+            foreach($data as $key => $name) {
+                foreach($name as $key => $item) {
+                    $dataReturn[] = $item;
+                }
+            }
+
+            return response()->json($dataReturn);
+        }
+
+        return Administrator::where("id", '=', $request->id)->get('name');
     }
 }

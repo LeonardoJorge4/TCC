@@ -8,6 +8,7 @@ use App\Models\Comments;
 use App\Models\Posts;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 
 class PostController extends Controller
@@ -62,7 +63,7 @@ class PostController extends Controller
         $post->subtitle = $request->subtitle;
         $post->slug = $request->slug;
         $post->content = $request->content;
-        $post->admin_id = 1;
+        $post->admin_id = $request->admin_id;
         
         if($request->hasFile('banner') && $request->file('banner')->isValid()) {
             $requestImage = $request->banner;
@@ -74,20 +75,17 @@ class PostController extends Controller
             $requestImage->move('/home/leonardo/Projects/tecnoblog/frontend/public/images/posts', $imageName);
 
             $post->banner = $imageName;
+        } else {
+            $post->banner = 'bannerDefault.jpg';
         }
 
         $post->save();
 
         $emailUsers = User::where('receive_email', '=', 'true')->get('email');
 
-        $details = [
-            'title' => 'Nova postagem no blog!',
-            'body' => 'teste email'
-        ];
-
         try {
             foreach($emailUsers as $email){
-                Mail::to($email)->send(new MailSender($details, $request->slug));
+                Mail::to($email)->send(new MailSender($request->slug));
             }
         } catch (\Throwable $th) {
             return response()->json($th);
@@ -128,5 +126,9 @@ class PostController extends Controller
 
         return response()->json(['success' => 'Postagem alterada com sucesso!']);
     }
-    
+
+    public function getAdminId(Request $request)
+    {
+        return Posts::where('id', '=', $request->id)->get('admin_id');
+    }
 }

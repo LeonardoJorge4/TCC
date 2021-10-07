@@ -47,6 +47,7 @@ Route::group([
     Route::post('/create', [PostController::class, 'create']);
     Route::post('/delete', [PostController::class, 'delete']);
     Route::post('/update', [PostController::class, 'update']);
+    Route::post('/get-admin-id', [PostController::class, 'getAdminId']);
 });
 
 Route::group([

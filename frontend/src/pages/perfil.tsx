@@ -16,14 +16,12 @@ interface FormProps {
 }
 
 export default function Perfil() {
-  const { user } = useContext(AuthContext)
+  const { user, loading } = useContext(AuthContext)
   const router = useRouter()
   const formRef = useRef(null);
   const [checked, setChecked] = useState<boolean>(user?.receive_email);
 
-  console.log(user)
-
-  async function handleSubmit(data: FormProps, { reset }) {
+  async function handleSubmit(data: FormProps) {
     try {
       // Remove all previous errors
       formRef.current.setErrors({});
@@ -50,7 +48,7 @@ export default function Perfil() {
       await api.post('/users/update', formData)
       .then(response => {
         setTimeout(() => {
-          router.push('/')
+          window.location.reload();
         }, 1500)
         Swal.fire({
           icon: "success",
@@ -69,8 +67,8 @@ export default function Perfil() {
     }
   }
 
-  if(!user) {
-    router.push('/')
+  if(loading) {
+    return <></>
   } else {
     return (
       <div style={{ marginBottom: 27 }}>
@@ -84,14 +82,14 @@ export default function Perfil() {
         </section>
         <div>
           <div className="container">
-            <Form 
+            {!loading && <Form 
               ref={formRef} 
               onSubmit={handleSubmit} 
               className="row g-3"
               initialData={{
-                name: user.name,
-                email: user.email,
-                receivePosts: user.receive_email ? true : false
+                name: user && user.name,
+                email: user && user.email,
+                receivePosts: user && user.receive_email ? true : false
               }}
             >
               <div className="col-md-12">
@@ -138,6 +136,7 @@ export default function Perfil() {
                 <button type="submit" className="btn-lg btn-primary">Atualizar</button>
               </div>
             </Form>
+            }
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import React, { useRef, useContext, useEffect, useState } from 'react';
 import Head from 'next/head';
-import { api } from "../../services/api";
+import { api, apiAdmin } from "../../services/api";
 import * as yup from 'yup';
 import { Form } from '@unform/web';
 import { TextAreaForm } from '../../components/TextAreaForm';
@@ -31,6 +31,8 @@ export default function Post({ id, slug, title, subtitle, banner, content, creat
   const [usersComments, setUsersComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [adminId, setAdminId] = useState('');
+  const [adminName, setAdminName] = useState('');
 
   useEffect(() => {
     async function getQuantityComment() {
@@ -77,6 +79,49 @@ export default function Post({ id, slug, title, subtitle, banner, content, creat
 
     getComments()
   }, [])
+
+  useEffect(() => {
+    async function getAdminNames() {
+      setLoading(true);
+      const formData = new FormData();
+
+      formData.append('id', id);
+      await api.post('posts/get-admin-id', formData)
+      .then(response => {
+        setAdminId(response.data[0].admin_id)
+      })
+      .catch(error => {
+        console.log(error)
+        setLoading(false);
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro ao buscar dados'
+        })
+      })
+    }
+
+    getAdminNames()
+  }, [])
+
+  useEffect(() => {
+    setLoading(true);
+    async function getAdminName() {
+      const formData = new FormData();
+
+      formData.append('id', adminId);
+      await apiAdmin.post('admin/get-admin-name', formData)
+      .then(response => {
+        setLoading(false);
+        setAdminName(response.data[0].name)
+      })
+      .catch((error) => {
+        setLoading(false);
+        console.log(error)
+      })
+    }
+
+    getAdminName()
+  }, [adminId])
 
   async function handleSubmit(data: FormProps) {
     try {
@@ -139,57 +184,55 @@ export default function Post({ id, slug, title, subtitle, banner, content, creat
                 <div 
                   className="card bg-dark-overlay-5 overflow-hidden card-bg-scale h-400 text-center"
                   style={{ 
-                    backgroundImage: `url(/images/posts/${banner})`, 
+                    backgroundImage: banner ? `url(/images/posts/${banner})` : '/images/bannerDefault.jpg', 
                     backgroundPosition: "center left", 
                     backgroundSize: "cover",
                     height: "400px"
                   }}
                 >
-                  <div className="card-img-overlay d-flex align-items-center p-3 p-sm-4"> 
-                    <div className="w-100 my-auto">
-                      <h2 className="text-white display-5">{title}</h2>
-                      <h3 className="text-white display-6">{subtitle}</h3>
-                      <ul className="nav nav-divider text-white-force align-items-center justify-content-center">
-                        <li className="nav-item">
-                          <div className="nav-link">
-                            <div className="d-flex align-items-center text-white position-relative">
-                              <AiOutlineUser size={22} />
-                              <span className="ms-1">Leonardo Jorge</span>
-                            </div>
-                          </div>
-                        </li>
-                        <li className="nav-item text-white">
-                          <div className="nav-link">
-                            <div className="d-flex align-items-center text-white position-relative">
-                              <AiOutlineCalendar className="me-1" size={22} />
-                              <span>
-                              {
-                                new Date(updated_at).toLocaleDateString('pt-BR', {
-                                  day: '2-digit',
-                                  month: 'long',
-                                  year: 'numeric'
-                                })
-                              }
-                              </span>
-                            </div>
-                          </div>
-                        </li>
-                        <li className="nav-item text-white">
-                          <div className="nav-link">
-                            <div className="d-flex align-items-center text-white position-relative">
-                              <AiOutlineClockCircle className="me-1" size={22} />
-                              <span>5 min</span>
-                            </div>
-                          </div>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
+        <div className="container">
+          <h2 className="display-5 text-center">{title}</h2>
+          <h3 className="display-6 text-center">{subtitle}</h3>
+          <ul className="nav nav-divider text-white-force align-items-center justify-content-center">
+            <li className="nav-item">
+              <div className="nav-link">
+                <div className="d-flex align-items-center position-relative">
+                  <AiOutlineUser size={22} />
+                  <span className="ms-1">{adminName && adminName}</span>
+                </div>
+              </div>
+            </li>
+            <li className="nav-item text-white">
+              <div className="nav-link">
+                <div className="d-flex align-items-center position-relative">
+                  <AiOutlineCalendar className="me-1" size={22} />
+                  <span>
+                  {
+                    new Date(updated_at).toLocaleDateString('pt-BR', {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric'
+                    })
+                  }
+                  </span>
+                </div>
+              </div>
+            </li>
+            <li className="nav-item">
+              <div className="nav-link">
+                <div className="d-flex align-items-center position-relative">
+                  <AiOutlineClockCircle className="me-1" size={22} />
+                  <span>5 min</span>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
         <section className="pt-0">
           <div className="container position-relative" data-sticky-container="">
             <div className="row">

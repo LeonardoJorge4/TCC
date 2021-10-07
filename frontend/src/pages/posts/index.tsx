@@ -55,7 +55,7 @@ export default function Posts() {
                           </p>
                           <div className="d-flex justify-content-between align-items-center mt-2">
                             <div className="btn-group">
-                              <div className="btn btn-sm btn-outline-secondary">Leonardo</div>
+                              <div className="btn btn-sm btn-outline-secondary">{post.subtitle}</div>
                               <div className="btn btn-sm btn-outline-secondary">
                                 {
                                   new Date(post.created_at).toLocaleDateString('pt-BR', {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { Box, Divider, Flex, Heading, VStack, SimpleGrid, HStack, Button } from "@chakra-ui/react";
 import Link from 'next/link'
 import { useRouter } from "next/dist/client/router";
@@ -13,6 +13,7 @@ import { Sidebar } from "../../components/Sidebar";
 import { Input } from "../../components/Form/Input";
 
 import { api, apiPost } from "../../services/api";
+import { AuthContext } from "../../contexts/AuthContext";
 
 interface CreatePostFormData {
   title: string;
@@ -33,6 +34,7 @@ export default function CreatePosts() {
   const editorRef = useRef()
   const [content, setContent] = useState('');
   const [editorLoaded, setEditorLoaded] = useState(false)
+  const { user } = useContext(AuthContext)
   const { CKEditor, ClassicEditor } = editorRef.current || {}
 
   const { register, handleSubmit, formState } = useForm({
@@ -57,9 +59,11 @@ export default function CreatePosts() {
       formData.append('subtitle', values.subtitle)
       formData.append('slug', values.slug)
       formData.append('content', content)
+      formData.append('admin_id', String(user.id))
 
-      const response = await apiPost.post('posts/create', formData)
+      await apiPost.post('posts/create', formData)
       .then(response => {
+        console.log(response)
         Swal.fire({
           icon: "success",
           title: `${response.data.success}`

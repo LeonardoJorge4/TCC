@@ -10,6 +10,13 @@ export const api = axios.create({
   }
 })
 
+export const apiAdmin = axios.create({
+  baseURL: 'http://localhost:8001/api',
+  headers: {
+    Authorization: `Bearer ${cookies['tecnoblog.token']}`
+  }
+})
+
 api.interceptors.response.use(response => {
   return response;
 }, (error: AxiosError) => {
