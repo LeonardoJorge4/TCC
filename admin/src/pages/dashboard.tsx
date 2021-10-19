@@ -1,10 +1,39 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Header } from "../components/Header/index";
 import dynamic from 'next/dynamic'
 import { Flex, SimpleGrid, Box, Text,theme } from '@chakra-ui/react'
 import { Sidebar } from "../components/Sidebar";
+import { apiPost } from '../services/api';
+import { endOfWeek, startOfWeek } from 'date-fns'
 
 export default function Dashboard() {
+  const [usersWeek, setUsersWeek] = useState([{}]);
+  const [getLenghtUsers, setLenghtUsers] = useState([])
+  const [calc, setCalc] = useState()
+
+  useEffect(() => {
+    async function getUsersCreatedWeek() {
+      await apiPost.get('users/week')
+      .then(response =>{ 
+        // setLenghtUsers(response.data.map((item) => {
+        //   return item
+        // })
+        const data = response.data.map((item) => {
+          return item.total
+        })
+        setLenghtUsers(data)
+        const soma = data?.reduce(function(soma, i) {
+          return soma + i;
+        });
+        setCalc(soma)
+      })
+      .catch(err => console.error(err))
+    }
+
+    getUsersCreatedWeek()
+  }, [])
+
+  const date = new Date();
 
   const Chart = dynamic(() => import('react-apexcharts'), {
     ssr: false,
@@ -23,10 +52,7 @@ export default function Dashboard() {
     grid: {
       show: false,
     },
-    dataLabels: {
-      enabled: false,
-    },
-    tooltop: {
+    tooltip: {
       enabled: false,
     },
     xaxis: {
@@ -38,13 +64,7 @@ export default function Dashboard() {
         color: theme.colors.gray[600]
       },
       categories: [
-        '2021-03-06T00:00:00.000Z',
-        '2021-03-07T00:00:00.000Z',
-        '2021-03-08T00:00:00.000Z',
-        '2021-03-09T00:00:00.000Z',
-        '2021-03-10T00:00:00.000Z',
-        '2021-03-11T00:00:00.000Z',
-        '2021-03-12T00:00:00.000Z',
+        date.toISOString(),
       ],
     },
 
@@ -60,8 +80,21 @@ export default function Dashboard() {
   }
 
   const series = [
-    { name: 'series1', data: [21, 120, 10, 28, 51, 18, 109] }
+    { name: 'series1', data: [getLenghtUsers.length] }
   ]
+
+  // let date = new Date();
+
+  // const inicioSemana =
+  //   startOfWeek(date, { weekStartsOn: 0 })
+  //   .toLocaleDateString('pt');
+  // const fimSemana = 
+  //   endOfWeek(date, { weekStartsOn: 0 })
+  //   .toLocaleDateString('pt');
+
+  // console.log('Para a data: ', date.toLocaleDateString('pt'));
+  // console.log('Inicio da semanda: ', inicioSemana);
+  // console.log('Fim da semanda: ', fimSemana);
 
   return (
     <Flex direction="column" h="100vh">
@@ -78,8 +111,11 @@ export default function Dashboard() {
             borderRadius={8}
             pb="4"
           >
-            <Text fontSize="lg" mb="4">Inscritos da semana</Text>
-            <Chart options={options} series={series} type="area" height={160} />
+            <Text fontSize="lg" mb="4">Inscritos do dia</Text>
+            {
+              usersWeek &&
+              <Chart options={options} series={series} type="area" height={160} />
+            }
           </Box>
         </SimpleGrid>
 

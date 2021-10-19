@@ -1,14 +1,12 @@
-import React, { useState, useContext } from "react";
+import React, { useContext } from "react";
 import { 
   Box, 
   Button, 
-  Checkbox, 
   Flex, 
   Heading, 
   HStack, 
   Icon, 
   Link, 
-  Spinner, 
   Table, 
   Tbody, 
   Td, 
@@ -16,7 +14,6 @@ import {
   Th, 
   Thead, 
   Tr, 
-  useBreakpointValue 
 } from "@chakra-ui/react";
 import Pagination from "react-js-pagination";
 import { RiAddLine, RiPencilLine, RiDeleteBin6Line } from "react-icons/ri";
@@ -24,7 +21,7 @@ import { Header } from "../../components/Header";
 
 import { Sidebar } from "../../components/Sidebar";
 import NextLink from 'next/link';
-import { api, apiPost } from "../../services/api";
+import { apiPost } from "../../services/api";
 import { PostsContext } from "../../contexts/PostsContext";
 import Swal from "sweetalert2";
 import { useRouter } from "next/router";
@@ -79,7 +76,7 @@ const Posts = () => {
 							<Table colorScheme="whiteAlpha" marginBottom="20px">
 								<Thead>
 									<Tr>
-                    <Th>Admin</Th>
+                    <Th>Admin id</Th>
 										<Th>Título post</Th>
 										<Th>Data de cadastro</Th>
                     <Th>Ações</Th>
@@ -93,7 +90,7 @@ const Posts = () => {
                           <Td>
                             <Box>
                               <Link color="purple.400" onMouseEnter={() => {}}>
-                                <Text fontWeight="bold">Leonardo Jorge</Text>
+                                <Text fontWeight="bold">{post.admin_id}</Text>
                               </Link>
                             </Box>
                           </Td>

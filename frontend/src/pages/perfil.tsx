@@ -21,6 +21,12 @@ export default function Perfil() {
   const formRef = useRef(null);
   const [checked, setChecked] = useState<boolean>(user?.receive_email);
 
+  useEffect(() => {
+    if(!user) {
+      router.push('/')
+    }
+  }, [])
+
   async function handleSubmit(data: FormProps) {
     try {
       // Remove all previous errors

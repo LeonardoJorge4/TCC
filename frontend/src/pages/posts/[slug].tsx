@@ -24,6 +24,7 @@ interface FormProps {
 }
 
 export default function Post({ id, slug, title, subtitle, banner, content, created_at, updated_at }: PostProps) {
+  const main = useRef(null);
   const formRef = useRef(null);
   const { user } = useContext(AuthContext);
   const [commentsQuantity, setCommentsQuantity] = useState(0);
@@ -33,6 +34,18 @@ export default function Post({ id, slug, title, subtitle, banner, content, creat
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [adminId, setAdminId] = useState('');
   const [adminName, setAdminName] = useState('');
+
+  // let readingRateInSeconds = 0;
+  // // Recuperando elemento HTML
+  // const textContainer = main.current;
+  // // Pegando todos os textos
+  // const item = textContainer.innerText;
+  // // Quantidade de palavras do texto
+  // const wordCount = item.split(" ").length;
+  // // Processando o tempo de leitura
+  // readingRateInSeconds = (wordCount*60)/200;
+
+  console.log(main.current)
 
   useEffect(() => {
     async function getQuantityComment() {
@@ -198,7 +211,7 @@ export default function Post({ id, slug, title, subtitle, banner, content, creat
         <div className="container">
           <h2 className="display-5 text-center">{title}</h2>
           <h3 className="display-6 text-center">{subtitle}</h3>
-          <ul className="nav nav-divider text-white-force align-items-center justify-content-center">
+          <ul className="nav nav-divider text-white-force align-items-center justify-content-center py-2 pb-3">
             <li className="nav-item">
               <div className="nav-link">
                 <div className="d-flex align-items-center position-relative">
@@ -227,7 +240,7 @@ export default function Post({ id, slug, title, subtitle, banner, content, creat
               <div className="nav-link">
                 <div className="d-flex align-items-center position-relative">
                   <AiOutlineClockCircle className="me-1" size={22} />
-                  <span>5 min</span>
+                  <span>{Math.ceil(content.split(' ').length / 200)} min</span>
                 </div>
               </div>
             </li>
@@ -236,7 +249,7 @@ export default function Post({ id, slug, title, subtitle, banner, content, creat
         <section className="pt-0">
           <div className="container position-relative" data-sticky-container="">
             <div className="row">
-              <div className="col-lg-12">
+              <div className="col-lg-12 contentData">
                 {renderHTML(content)}
               </div>
 
@@ -288,7 +301,7 @@ export default function Post({ id, slug, title, subtitle, banner, content, creat
                                   }
                                 </span>
                               </div>
-                              <p className="m-0">{comment.content}</p>
+                              <div id="main" ref={main} className="m-0">{comment.content}</div>
                             </div>
                           </div>
                         )

@@ -11,11 +11,6 @@ use Illuminate\Support\Facades\File;
 
 class UserController extends Controller
 {
-    public function index()
-    {
-        return User::all();
-    }
-
     public function create(Request $request)
     {
         $user = new User;
@@ -69,7 +64,18 @@ class UserController extends Controller
         return response()->json(['success' => 'Usuário atualizado com sucesso!']);
     }
 
-    public function dataResponse(Request $request) {
+    public function dataResponse() {
         return Auth::user();
+    }
+
+    public function getWeekUsers()
+    {
+        $user = DB::table('users')
+        ->select(DB::raw('count(created_at) as total, created_at, week(created_at)'))
+        ->whereRaw("week(created_at) = week(now())")
+        ->groupBy('created_at')
+        ->get();
+
+        return response()->json($user);
     }
 }

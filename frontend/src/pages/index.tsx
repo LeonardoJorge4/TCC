@@ -42,46 +42,50 @@ export default function Home() {
       <div className={styles.container}>
         <div className={styles.containerContent}>
           <h1>Últimos posts</h1>
-          {
-            posts.map(post => {
-              return (
-                <div key={post.id} className={styles.containerPost}>
-                  <div className={styles.gridPost}>
-                    <div className={styles.contentPost}>
-                      <h2><a href={`/posts/${post.slug}`}>{post.title}</a></h2>
-                      <h3><a href={`/posts/${post.slug}`}>{post.subtitle}</a></h3>
-                      <div className={styles.author}>
-                        <span>
-                          <FiCalendar className={styles.calendarIcon}/>
-                          {
-                            new Date(post.created_at).toLocaleDateString('pt-BR', {
-                              day: '2-digit',
-                              month: '2-digit',
-                              year: 'numeric'
-                            })
-                          }
-                        </span>
+          <div className="d-flex">
+            <div style={{ flex: 'auto' }}>
+            {
+              posts.map(post => {
+                return (
+                  <div key={post.id} className={styles.containerPost}>
+                    <div className={styles.gridPost}>
+                      <div className={styles.contentPost}>
+                        <h2><a href={`/posts/${post.slug}`}>{post.title}</a></h2>
+                        <h3><a href={`/posts/${post.slug}`}>{post.subtitle}</a></h3>
+                        <div className={styles.author}>
+                          <span>
+                            <FiCalendar className={styles.calendarIcon}/>
+                            {
+                              new Date(post.created_at).toLocaleDateString('pt-BR', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric'
+                              })
+                            }
+                          </span>
+                        </div>
+                      </div>
+                      <div className={styles.containerArrow}>
+                        <a href={`/posts/${post.slug}`}>
+                          <IoArrowForwardCircleOutline className={styles.arrowIcon}/>
+                        </a>
                       </div>
                     </div>
-                    <div className={styles.containerArrow}>
-                      <a href={`/posts/${post.slug}`}>
-                        <IoArrowForwardCircleOutline className={styles.arrowIcon}/>
-                      </a>
-                    </div>
+                    <div className={styles.line}></div>
                   </div>
-                  <div className={styles.line}></div>
-                </div>
-              )   
-            })
-          }
-          <div className="d-flex align-items-center">
-            <h4 className="me-3">Criadores: </h4>
-            <div className="d-flex flex-column">
-            {
-              adminName && adminName.map((admin) => (
-                <span>por <b>{admin.name}</b></span>
-              ))
+                )   
+              })
             }
+            </div>
+            <div className="d-flex">
+
+              <div className="d-flex flex-column justify-content-around align-items-center">
+              {
+                adminName && adminName.map((admin, index) => (
+                  <span key={index} className="d-flex">por <b className="ms-1">{admin.name}</b></span>
+                ))
+              }
+              </div>
             </div>
           </div>
         </div>

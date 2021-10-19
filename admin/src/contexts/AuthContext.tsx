@@ -92,12 +92,9 @@ export function AuthProvider({ children }) {
 
     api.defaults.headers['Authorization'] = `Bearer ${response.data.access_token}`;
 
-    setTimeout(() => {
-      window.location.reload();
-    }, 1000)
-    
     setLoading(false)
     Router.push('/dashboard');
+    
     Swal.fire({
       position: 'top-end',
       icon: 'success',

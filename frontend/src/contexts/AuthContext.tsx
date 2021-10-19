@@ -3,7 +3,6 @@ import { api } from "../services/api";
 import { setCookie, parseCookies, destroyCookie } from 'nookies';
 import Router from 'next/router';
 import Swal from 'sweetalert2'
-import { error } from "console";
 
 type User = {
   id: string;
@@ -107,7 +106,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, loading, signIn }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, loading, signIn, setUser }}>
       {children}
     </AuthContext.Provider>
   )

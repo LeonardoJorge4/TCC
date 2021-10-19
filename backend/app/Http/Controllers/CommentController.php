@@ -38,9 +38,4 @@ class CommentController extends Controller
             'comment' => $comment,
         ]);
     }
-
-    public function getUsers(Request $request)
-    {
-        return User::where();
-    }
 }

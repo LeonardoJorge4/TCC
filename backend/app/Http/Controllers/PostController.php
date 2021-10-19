@@ -8,7 +8,7 @@ use App\Models\Comments;
 use App\Models\Posts;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 
 class PostController extends Controller
@@ -92,14 +92,14 @@ class PostController extends Controller
         }
 
 
-        return response()->json(['success' => 'Postagem criado com sucesso!']);
+        return response()->json(['success' => 'Postagem criada com sucesso!']);
     }
 
     public function delete(Request $request)
     {
         Posts::find($request->id)->delete();
 
-        return response()->json(['success' => 'Postagem deletado com sucesso!']);
+        return response()->json(['success' => 'Postagem deletada com sucesso!']);
     }
 
     public function update(Request $request)
@@ -111,6 +111,8 @@ class PostController extends Controller
         $post->content = $request->content;
 
         if($request->hasFile('banner') && $request->file('banner')->isValid()) {
+            File::delete('/home/leonardo/Projects/tecnoblog/frontend/public/images/posts/' . $post->banner);
+
             $requestImage = $request->banner;
 
             $extension = $requestImage->extension();

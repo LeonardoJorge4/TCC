@@ -53,7 +53,7 @@ export default function Login() {
       <Head>
         <title>Tecnoblog | Login</title>
       </Head>
-      <main>
+      <main className="mbLogin">
         <section className="py-4 text-center container">
           <div className="row py-lg-4">
             <div className="col-lg-6 col-md-8 mx-auto">

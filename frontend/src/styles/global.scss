@@ -42,6 +42,10 @@ a {
   text-decoration: none;
 }
 
+p {
+  font-size: 1.2rem;
+}
+
 // HEADER
 
 .containerHeader {
@@ -183,3 +187,18 @@ body {
   border-color: transparent;
   box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
 }
+
+.contentData img {
+  max-width: 100%;
+}
+
+.mbLogin {
+  margin-bottom: 28vh 
+}
+
+@media(max-width: 977px) {
+  .separatorHeader {
+    display: none;
+  }
+}
+

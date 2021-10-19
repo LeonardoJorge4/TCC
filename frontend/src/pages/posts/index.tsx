@@ -45,11 +45,11 @@ export default function Posts() {
               posts && postsFiltered.map(post => {
                 return (
                   <div className="col" key={post.id}>
-                    <div className="card shadow-sm">
+                    <div className="card shadow-sm" style={{ minHeight: '360px' }}>
                       <img src={`/images/posts/${post.banner}`} alt={`${post.title}`} height="225" />
     
                       <Link href={`/posts/${post.slug}`}>
-                        <a className="card-body">
+                        <a className="card-body d-flex flex-column justify-content-between">
                           <p className="card-text">
                             {post.title}
                           </p>
@@ -66,7 +66,6 @@ export default function Posts() {
                                 }
                               </div>
                             </div>
-                            <small className="text-muted">3 minutos</small>
                           </div>
                         </a>
                       </Link>

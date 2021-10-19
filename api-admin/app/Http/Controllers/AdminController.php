@@ -10,7 +10,7 @@ class AdminController extends Controller
 {
     public function login()
     {   
-        return response()->json(Auth::user());
+        return Auth::user();
     }
 
     public function create(Request $request)

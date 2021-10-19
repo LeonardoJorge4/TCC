@@ -22,10 +22,10 @@ use Illuminate\Support\Facades\Route;
 Route::group([
     'prefix' => 'users'
 ], function () {
-    Route::get('/', [UserController::class, 'index']);
     Route::get('/data', [UserController::class, 'dataResponse']);
     Route::post('/create', [UserController::class, 'create']);
     Route::post('/update', [UserController::class, 'update']);
+    Route::get('/week', [UserController::class, 'getWeekUsers']);
 });
 
 Route::group([
@@ -55,7 +55,6 @@ Route::group([
 ], function () {
     Route::post('/quantity', [CommentController::class, 'quantity']);
     Route::post('/content', [CommentController::class, 'getContent']);
-    Route::post('/users', [CommentController::class, 'getUsers']);
 });
 
 Route::group([
